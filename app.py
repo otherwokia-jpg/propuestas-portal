@@ -17,7 +17,30 @@ from flask_sqlalchemy import SQLAlchemy
 import jwt
 from werkzeug.utils import secure_filename
 
-# ── App setup ──
+
+class PrefixMiddleware:
+    """Strips the /propuestas prefix from Cloudflare tunnel requests."""
+    def __init__(self, wsgi_app, prefix='/propuestas'):
+        self.wsgi_app = wsgi_app
+        self.prefix = prefix
+
+    def __call__(self, environ, start_response):
+        path = environ.get('PATH_INFO', '')
+        if path.startswith(self.prefix):
+            environ['PATH_INFO'] = path[len(self.prefix):] or '/'
+            environ['SCRIPT_NAME'] = self.prefix
+
+        def rewrite_location(status, headers, exc_info=None):
+            new_headers = []
+            for name, value in headers:
+                if name.lower() == 'location' and value.startswith('/') and not value.startswith(self.prefix):
+                    value = self.prefix + value
+                new_headers.append((name, value))
+            return start_response(status, new_headers, exc_info)
+
+        return self.wsgi_app(environ, rewrite_location)
+
+
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'propuestas-secret-dev-9200')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.root_path, 'propuestas.db')
@@ -462,5 +485,7 @@ with app.app_context():
 # ══════════════════════════════════════════════════
 # RUN
 # ══════════════════════════════════════════════════
+app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix='/propuestas')
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 9200)), debug=True)
