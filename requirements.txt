@@ -1,0 +1,5 @@
+flask>=2.3
+flask-sqlalchemy>=3.0
+pyjwt>=2.0
+werkzeug>=2.3
+gunicorn>=21.2

@@ -1,0 +1,66 @@
+{% extends "layout.html" %}
+{% block title %}Dashboard · Propuestas{% endblock %}
+{% block content %}
+<h1 style="font-size: 22px; font-weight: 700; color: #0066B2; margin-bottom: 20px;">📋 Dashboard de Propuestas</h1>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-number">{{ stats.total_clientes }}</div>
+        <div class="stat-label">Clientes</div>
+    </div>
+    <div class="stat-card" style="border-left-color: #0099CC;">
+        <div class="stat-number" style="color: #0099CC;">{{ stats.total_propuestas }}</div>
+        <div class="stat-label">Total Propuestas</div>
+    </div>
+    <div class="stat-card" style="border-left-color: #ffc107;">
+        <div class="stat-number" style="color: #ffc107;">{{ stats.activas }}</div>
+        <div class="stat-label">Activas (Borrador/Enviada)</div>
+    </div>
+    <div class="stat-card" style="border-left-color: #28a745;">
+        <div class="stat-number" style="color: #28a745;">{{ stats.aprobadas }}</div>
+        <div class="stat-label">Aprobadas</div>
+    </div>
+</div>
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div class="card-title" style="margin-bottom: 0;">Clientes</div>
+        <a href="{{ url_for('nuevo_cliente') }}" class="btn btn-primary">+ Nuevo Cliente</a>
+    </div>
+
+    <form class="search-box" method="GET">
+        <input type="text" name="q" placeholder="Buscar cliente..." value="{{ q }}">
+        <button type="submit" class="btn btn-primary">🔍 Buscar</button>
+    </form>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th>Contacto</th>
+                    <th>Propuestas</th>
+                    <th>Última Act.</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in clientes %}
+                <tr>
+                    <td><strong><a href="{{ url_for('ver_cliente', cliente_id=c.id) }}" style="color:#0066B2;">{{ c.nombre }}</a></strong></td>
+                    <td>{{ c.contacto or '—' }}</td>
+                    <td><span class="badge badge-enviada">{{ c.propuestas.count() }}</span></td>
+                    <td>{{ c.updated_at.strftime('%d/%m/%Y') if c.updated_at else '—' }}</td>
+                    <td>
+                        <a href="{{ url_for('ver_cliente', cliente_id=c.id) }}" class="btn btn-outline btn-sm">Ver</a>
+                        <a href="{{ url_for('editar_cliente', cliente_id=c.id) }}" class="btn btn-sm" style="background:#f0f4f8;">Editar</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" style="text-align:center; padding: 40px; color:#888;">No hay clientes registrados. <a href="{{ url_for('nuevo_cliente') }}">Crear primero</a></td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Propuestas{% endblock %} · Hub Multiteck</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            min-height: 100vh;
+        }
+        /* Nav */
+        .nav {
+            background: linear-gradient(135deg, #0066B2, #0099CC);
+            color: white;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            height: 56px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-brand { font-size: 18px; font-weight: 700; margin-right: 32px; }
+        .nav-brand a { color: white; text-decoration: none; }
+        .nav-links { display: flex; gap: 20px; flex: 1; }
+        .nav-links a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 14px; padding: 4px 0; }
+        .nav-links a:hover, .nav-links a.active { color: white; border-bottom: 2px solid white; }
+        .nav-user { display: flex; align-items: center; gap: 12px; font-size: 13px; }
+        .nav-user .role-badge {
+            background: rgba(255,255,255,0.2); padding: 2px 10px; border-radius: 10px;
+            font-size: 11px; text-transform: uppercase;
+        }
+        .nav-user a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 13px; }
+        .nav-user a:hover { color: white; }
+        /* Container */
+        .container { max-width: 1280px; margin: 0 auto; padding: 24px; }
+        /* Alerts */
+        .alert {
+            padding: 12px 16px; border-radius: 8px; margin-bottom: 16px;
+            font-size: 14px; display: flex; align-items: center; gap: 8px;
+        }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .alert-info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        /* Cards */
+        .card {
+            background: white; border-radius: 10px; padding: 20px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 16px;
+            border: 1px solid #e8ecf0;
+        }
+        .card-title { font-size: 16px; font-weight: 600; color: #0066B2; margin-bottom: 12px; }
+        /* Stats */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .stat-card {
+            background: white; border-radius: 10px; padding: 20px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06); border-left: 4px solid #0066B2;
+        }
+        .stat-number { font-size: 28px; font-weight: 700; color: #0066B2; }
+        .stat-label { font-size: 13px; color: #666; margin-top: 4px; }
+        /* Tables */
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { background: #f0f4f8; text-align: left; padding: 10px 12px; font-weight: 600; color: #444; }
+        td { padding: 10px 12px; border-top: 1px solid #e8ecf0; }
+        tr:hover td { background: #f8faff; }
+        /* Buttons */
+        .btn {
+            display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px;
+            border-radius: 6px; font-size: 13px; font-weight: 500; text-decoration: none;
+            border: none; cursor: pointer; transition: all 0.15s;
+        }
+        .btn-primary { background: #0066B2; color: white; }
+        .btn-primary:hover { background: #005399; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-success:hover { background: #218838; }
+        .btn-warning { background: #ffc107; color: #333; }
+        .btn-warning:hover { background: #e0a800; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-danger:hover { background: #c82333; }
+        .btn-outline { background: transparent; color: #0066B2; border: 1px solid #0066B2; }
+        .btn-outline:hover { background: #e8f0fe; }
+        .btn-sm { padding: 4px 10px; font-size: 12px; }
+        /* Badges */
+        .badge {
+            display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;
+        }
+        .badge-borrador { background: #e2e3e5; color: #383d41; }
+        .badge-enviada { background: #cce5ff; color: #004085; }
+        .badge-aprobada { background: #d4edda; color: #155724; }
+        .badge-rechazada { background: #f8d7da; color: #721c24; }
+        /* Forms */
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #444; }
+        .form-control {
+            width: 100%; padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px;
+            font-size: 14px; font-family: inherit;
+        }
+        .form-control:focus { outline: none; border-color: #0066B2; box-shadow: 0 0 0 2px rgba(0,102,178,0.15); }
+        textarea.form-control { min-height: 100px; resize: vertical; }
+        select.form-control { background: white; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        /* Search */
+        .search-box { display: flex; gap: 8px; margin-bottom: 16px; }
+        .search-box input { flex: 1; padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        /* Doc list */
+        .doc-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 12px; border: 1px solid #e8ecf0; border-radius: 6px; margin-bottom: 8px;
+        }
+        .doc-item:hover { background: #f8faff; }
+        .doc-icon { font-size: 20px; margin-right: 10px; }
+        .doc-info { flex: 1; }
+        .doc-name { font-weight: 500; font-size: 13px; }
+        .doc-meta { font-size: 11px; color: #888; }
+        .doc-actions { display: flex; gap: 6px; }
+        /* Status select inline */
+        .status-form { display: inline-flex; gap: 6px; align-items: center; }
+        .status-form select { padding: 4px 8px; border-radius: 4px; font-size: 12px; border: 1px solid #ccc; }
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container { padding: 12px; }
+            .nav-links { display: none; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+        /* HTML viewer */
+        .html-viewer { border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin-top: 12px; }
+        .html-viewer iframe { width: 100%; border: none; }
+        .file-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-top: 12px; }
+        .file-card {
+            border: 1px solid #e8ecf0; border-radius: 8px; padding: 14px;
+            background: white; transition: box-shadow 0.15s;
+        }
+        .file-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .file-card .file-icon { font-size: 28px; margin-bottom: 8px; }
+        .file-card .file-name { font-size: 13px; font-weight: 600; }
+        .file-card .file-desc { font-size: 11px; color: #888; margin: 4px 0; }
+        .filter-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+        .filter-bar select { padding: 6px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-brand"><a href="{{ url_for('dashboard') }}">📋 Propuestas</a></div>
+        <div class="nav-links">
+            <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">Dashboard</a>
+            <a href="{{ url_for('nuevo_cliente') }}" class="{% if request.endpoint == 'nuevo_cliente' %}active{% endif %}">+ Cliente</a>
+        </div>
+        <div class="nav-user">
+            {% if current_user %}
+                <span class="role-badge">{{ current_user.get('role', 'user') }}</span>
+                <span>{{ current_user.get('full_name', current_user.get('username', '')) }}</span>
+                <a href="{{ url_for('logout') }}">Salir</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

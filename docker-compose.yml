@@ -1,0 +1,14 @@
+services:
+  propuestas-portal:
+    build: .
+    container_name: propuestas-portal
+    ports:
+      - "9200:9200"
+    environment:
+      - SECRET_KEY=${PROPUESTAS_SECRET_KEY:-propuestas-secret-dev-9200}
+      - SSO_SECRET=141c47a04c9ebd3d1c63f44793ec1dca1a0f57a7c327f1c9470e16279759a9fe
+      - PORT=9200
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./uploads:/app/uploads
+    restart: unless-stopped

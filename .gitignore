@@ -1,0 +1,10 @@
+__pycache__
+*.pyc
+.env
+venv
+.venv
+propuestas.db
+*.db
+uploads/*
+!uploads/.gitkeep
+.DS_Store

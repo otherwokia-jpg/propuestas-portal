@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block title %}{{ documento.filename }}{% endblock %}
+{% block content %}
+<div style="margin-bottom: 16px;">
+    <a href="{{ url_for('ver_propuesta', propuesta_id=documento.propuesta_id) }}" style="color:#888; font-size:13px;">← Volver a la propuesta</a>
+</div>
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+        <h1 style="font-size: 20px; font-weight: 700; color: #0066B2;">📄 {{ documento.filename }}</h1>
+        <p style="color:#888; font-size: 12px; margin-top: 4px;">
+            {{ documento.descripcion or 'Sin descripción' }} · 
+            Subido {{ documento.uploaded_at.strftime('%d/%m/%Y %H:%M') if documento.uploaded_at else '' }}
+        </p>
+    </div>
+    <a href="{{ url_for('descargar_documento', doc_id=documento.id) }}" class="btn btn-primary">⬇ Descargar</a>
+</div>
+
+<div class="html-viewer">
+    <iframe srcdoc="{{ html_content|e }}" style="width:100%; min-height: 80vh;"></iframe>
+</div>
+{% endblock %}

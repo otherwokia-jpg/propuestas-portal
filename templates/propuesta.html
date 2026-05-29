@@ -1,0 +1,125 @@
+{% extends "layout.html" %}
+{% block title %}{{ propuesta.titulo }}{% endblock %}
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 20px;">
+    <div>
+        <a href="{{ url_for('ver_cliente', cliente_id=propuesta.cliente_id) }}" style="color:#888; font-size:13px;">← {{ propuesta.cliente.nombre }}</a>
+        <h1 style="font-size: 22px; font-weight: 700; color: #0066B2; margin-top: 8px;">{{ propuesta.titulo }}</h1>
+    </div>
+    <div style="display: flex; gap: 8px; align-items: center;">
+        <span class="badge badge-{{ propuesta.estatus }}" style="font-size:13px; padding: 5px 14px;">{{ propuesta.estatus }}</span>
+        <a href="{{ url_for('editar_propuesta', propuesta_id=propuesta.id) }}" class="btn btn-outline">Editar</a>
+        <form method="POST" action="{{ url_for('eliminar_propuesta', propuesta_id=propuesta.id) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar esta propuesta?')">
+            <button type="submit" class="btn btn-danger">Eliminar</button>
+        </form>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom: 24px;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+        <div><strong>Cliente:</strong> {{ propuesta.cliente.nombre }}</div>
+        <div><strong>Horas Est.:</strong> {{ propuesta.horas_est or '—' }}</div>
+        <div><strong>Presupuesto:</strong> {% if propuesta.presupuesto %}${{ "%.0f"|format(propuesta.presupuesto) }}{% else %}—{% endif %}</div>
+        <div><strong>Actualizada:</strong> {{ propuesta.updated_at.strftime('%d/%m/%Y %H:%M') if propuesta.updated_at else '—' }}</div>
+    </div>
+
+    {% if propuesta.descripcion %}
+    <div><strong>Descripción:</strong></div>
+    <div style="color:#555; line-height:1.6; white-space: pre-wrap;">{{ propuesta.descripcion }}</div>
+    {% endif %}
+
+    <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e8ecf0;">
+        <form method="POST" action="{{ url_for('cambiar_estatus', propuesta_id=propuesta.id) }}" class="status-form">
+            <strong>Cambiar estatus:</strong>
+            <select name="estatus">
+                <option value="borrador" {% if propuesta.estatus == 'borrador' %}selected{% endif %}>📝 Borrador</option>
+                <option value="enviada" {% if propuesta.estatus == 'enviada' %}selected{% endif %}>✉ Enviada</option>
+                <option value="aprobada" {% if propuesta.estatus == 'aprobada' %}selected{% endif %}>✅ Aprobada</option>
+                <option value="rechazada" {% if propuesta.estatus == 'rechazada' %}selected{% endif %}>❌ Rechazada</option>
+            </select>
+            <button type="submit" class="btn btn-sm btn-primary">Actualizar</button>
+        </form>
+    </div>
+</div>
+
+{% set html_docs = documentos|selectattr('tipo', 'equalto', 'html')|list %}
+{% set other_docs = documentos|rejectattr('tipo', 'equalto', 'html')|list %}
+
+{% if html_docs %}
+<h2 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">📄 Documentos HTML</h2>
+<div class="file-grid">
+    {% for doc in html_docs %}
+    <div class="file-card">
+        <div class="file-icon">📄</div>
+        <div class="file-name">{{ doc.filename }}</div>
+        <div class="file-desc">{{ doc.descripcion or 'Documento HTML' }}</div>
+        <div style="display:flex; gap:6px; margin-top:8px;">
+            <a href="{{ url_for('ver_documento', doc_id=doc.id) }}" class="btn btn-outline btn-sm">👁 Ver</a>
+            <a href="{{ url_for('descargar_documento', doc_id=doc.id) }}" class="btn btn-sm" style="background:#f0f4f8;">⬇ Descargar</a>
+            <form method="POST" action="{{ url_for('eliminar_documento', doc_id=doc.id) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar este documento?')">
+                <button type="submit" class="btn btn-danger btn-sm">🗑</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<h2 style="font-size: 16px; font-weight: 600; margin: 20px 0 12px;">
+    📁 Documentos ({{ other_docs|length }})
+</h2>
+
+{% if other_docs %}
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Archivo</th>
+                <th>Tipo</th>
+                <th>Descripción</th>
+                <th>Subido</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for doc in other_docs %}
+            <tr>
+                <td><strong>{{ doc.filename }}</strong></td>
+                <td><span class="badge badge-enviada">{{ doc.tipo }}</span></td>
+                <td>{{ doc.descripcion or '—' }}</td>
+                <td>{{ doc.uploaded_at.strftime('%d/%m/%Y %H:%M') if doc.uploaded_at else '—' }}</td>
+                <td>
+                    <a href="{{ url_for('ver_documento', doc_id=doc.id) }}" class="btn btn-outline btn-sm">👁 Ver</a>
+                    <a href="{{ url_for('descargar_documento', doc_id=doc.id) }}" class="btn btn-sm" style="background:#f0f4f8;">⬇</a>
+                    <form method="POST" action="{{ url_for('eliminar_documento', doc_id=doc.id) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar?')">
+                        <button class="btn btn-danger btn-sm">🗑</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card" style="text-align:center; padding: 24px; color:#888;">No hay documentos adjuntos.</div>
+{% endif %}
+
+<style>
+.doc-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 12px; border: 1px solid #e8ecf0; border-radius: 6px; margin-bottom: 8px;
+}
+.doc-item:hover { background: #f8faff; }
+.doc-icon { font-size: 20px; margin-right: 10px; }
+.doc-info { flex: 1; }
+.doc-name { font-weight: 500; font-size: 13px; }
+.doc-meta { font-size: 11px; color: #888; }
+.doc-actions { display: flex; gap: 6px; }
+.file-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.file-card { border: 1px solid #e8ecf0; border-radius: 8px; padding: 14px; background: white; }
+.file-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.file-card .file-icon { font-size: 28px; margin-bottom: 8px; }
+.file-card .file-name { font-size: 13px; font-weight: 600; }
+.file-card .file-desc { font-size: 11px; color: #888; margin: 4px 0; }
+</style>
+{% endblock %}

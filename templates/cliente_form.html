@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% block title %}{% if cliente %}Editar{% else %}Nuevo{% endif %} Cliente{% endblock %}
+{% block content %}
+<h1 style="font-size: 20px; font-weight: 700; color: #0066B2; margin-bottom: 20px;">
+    {% if cliente %}✏️ Editar Cliente{% else %}➕ Nuevo Cliente{% endif %}
+</h1>
+
+<div class="card" style="max-width: 700px;">
+    <form method="POST">
+        <div class="form-group">
+            <label>Nombre del Cliente *</label>
+            <input type="text" name="nombre" class="form-control" required value="{{ cliente.nombre if cliente else '' }}">
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Contacto</label>
+                <input type="text" name="contacto" class="form-control" value="{{ cliente.contacto if cliente else '' }}">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" class="form-control" value="{{ cliente.email if cliente else '' }}">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Teléfono</label>
+                <input type="text" name="telefono" class="form-control" value="{{ cliente.telefono if cliente else '' }}">
+            </div>
+            <div class="form-group">
+                <label>&nbsp;</label>
+                <div></div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Notas</label>
+            <textarea name="notas" class="form-control">{{ cliente.notas if cliente else '' }}</textarea>
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 16px;">
+            <button type="submit" class="btn btn-primary">{% if cliente %}Guardar Cambios{% else %}Crear Cliente{% endif %}</button>
+            <a href="{% if cliente %}{{ url_for('ver_cliente', cliente_id=cliente.id) }}{% else %}{{ url_for('dashboard') }}{% endif %}" class="btn btn-outline">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

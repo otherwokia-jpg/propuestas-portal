@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+{% block title %}{{ cliente.nombre }} · Propuestas{% endblock %}
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 20px;">
+    <div>
+        <a href="{{ url_for('dashboard') }}" style="color:#888; font-size:13px;">← Dashboard</a>
+        <h1 style="font-size: 22px; font-weight: 700; color: #0066B2; margin-top: 8px;">{{ cliente.nombre }}</h1>
+    </div>
+    <div style="display: flex; gap: 8px;">
+        <a href="{{ url_for('editar_cliente', cliente_id=cliente.id) }}" class="btn btn-outline">Editar Cliente</a>
+        <a href="{{ url_for('nueva_propuesta', cliente_id=cliente.id) }}" class="btn btn-primary">+ Nueva Propuesta</a>
+        <form method="POST" action="{{ url_for('eliminar_cliente', cliente_id=cliente.id) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar este cliente y todas sus propuestas?')">
+            <button type="submit" class="btn btn-danger">Eliminar</button>
+        </form>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom: 24px;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+        <div><strong>Contacto:</strong> {{ cliente.contacto or '—' }}</div>
+        <div><strong>Email:</strong> {{ cliente.email or '—' }}</div>
+        <div><strong>Teléfono:</strong> {{ cliente.telefono or '—' }}</div>
+        {% if cliente.notas %}
+        <div style="grid-column: 1 / -1;"><strong>Notas:</strong><br>{{ cliente.notas }}</div>
+        {% endif %}
+    </div>
+</div>
+
+<h2 style="font-size: 18px; font-weight: 600; color: #333; margin-bottom: 12px;">
+    Propuestas ({{ propuestas|length }})
+</h2>
+
+{% if propuestas %}
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Horas</th>
+                <th>Presupuesto</th>
+                <th>Estatus</th>
+                <th>Documentos</th>
+                <th>Actualizada</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in propuestas %}
+            <tr>
+                <td><strong><a href="{{ url_for('ver_propuesta', propuesta_id=p.id) }}" style="color:#0066B2;">{{ p.titulo }}</a></strong></td>
+                <td>{{ p.horas_est or '—' }}</td>
+                <td>{% if p.presupuesto %}${{ "%.0f"|format(p.presupuesto) }}{% else %}—{% endif %}</td>
+                <td><span class="badge badge-{{ p.estatus }}">{{ p.estatus }}</span></td>
+                <td>{{ p.documentos.count() }}</td>
+                <td>{{ p.updated_at.strftime('%d/%m/%Y') if p.updated_at else '—' }}</td>
+                <td>
+                    <a href="{{ url_for('ver_propuesta', propuesta_id=p.id) }}" class="btn btn-outline btn-sm">Ver</a>
+                    <a href="{{ url_for('editar_propuesta', propuesta_id=p.id) }}" class="btn btn-sm" style="background:#f0f4f8;">Editar</a>
+                    <form method="POST" action="{{ url_for('eliminar_propuesta', propuesta_id=p.id) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar esta propuesta?')">
+                        <button type="submit" class="btn btn-danger btn-sm">🗑</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card" style="text-align:center; padding: 40px;">
+    <p style="color:#888; font-size: 14px;">No hay propuestas para este cliente.</p>
+    <a href="{{ url_for('nueva_propuesta', cliente_id=cliente.id) }}" class="btn btn-primary" style="margin-top: 12px;">+ Crear Primera Propuesta</a>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+{% block title %}{% if propuesta %}Editar{% else %}Nueva{% endif %} Propuesta{% endblock %}
+{% block content %}
+<h1 style="font-size: 20px; font-weight: 700; color: #0066B2; margin-bottom: 4px;">
+    {% if propuesta %}✏️ Editar Propuesta{% else %}➕ Nueva Propuesta{% endif %}
+</h1>
+<p style="color:#888; font-size:13px; margin-bottom: 20px;">Cliente: <strong>{{ cliente.nombre }}</strong></p>
+
+<div class="card" style="max-width: 800px;">
+    <form method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+            <label>Título de la Propuesta *</label>
+            <input type="text" name="titulo" class="form-control" required value="{{ propuesta.titulo if propuesta else '' }}">
+        </div>
+        <div class="form-group">
+            <label>Descripción</label>
+            <textarea name="descripcion" class="form-control" rows="4">{{ propuesta.descripcion if propuesta else '' }}</textarea>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Horas Estimadas</label>
+                <input type="number" name="horas_est" class="form-control" value="{{ propuesta.horas_est if propuesta else 0 }}" min="0">
+            </div>
+            <div class="form-group">
+                <label>Presupuesto ($)</label>
+                <input type="number" name="presupuesto" class="form-control" value="{{ propuesta.presupuesto if propuesta else 0 }}" min="0" step="0.01">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Estatus</label>
+            <select name="estatus" class="form-control">
+                <option value="borrador" {% if propuesta and propuesta.estatus == 'borrador' %}selected{% endif %}>📝 Borrador</option>
+                <option value="enviada" {% if propuesta and propuesta.estatus == 'enviada' %}selected{% endif %}>✉ Enviada al cliente</option>
+                <option value="aprobada" {% if propuesta and propuesta.estatus == 'aprobada' %}selected{% endif %}>✅ Aprobada</option>
+                <option value="rechazada" {% if propuesta and propuesta.estatus == 'rechazada' %}selected{% endif %}>❌ Rechazada</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Documentos (PDF, DOCX, XLSX, PPTX, HTML, TXT, MD)</label>
+            <input type="file" name="documentos" class="form-control" multiple>
+            <small style="color:#888; font-size:11px;">Puedes seleccionar múltiples archivos. Tamaño máximo: 50MB total.</small>
+        </div>
+        <div class="form-group">
+            <label>Descripción de documentos (opcional)</label>
+            <input type="text" name="doc_descripcion" class="form-control" placeholder="Ej: Propuesta técnica v1, Presentación ejecutiva...">
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 16px;">
+            <button type="submit" class="btn btn-primary">{% if propuesta %}Guardar Cambios{% else %}Crear Propuesta{% endif %}</button>
+            <a href="{% if propuesta %}{{ url_for('ver_propuesta', propuesta_id=propuesta.id) }}{% else %}{{ url_for('ver_cliente', cliente_id=cliente.id) }}{% endif %}" class="btn btn-outline">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
